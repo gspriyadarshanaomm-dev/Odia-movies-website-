@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Movie App</title>
+    <title>Odia Movies App</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e50914; --bg: #0f0f0f; --card-bg: #1a1a1a; --text: #ffffff; }
@@ -41,7 +41,7 @@
 <body>
 
 <header>
-    <input type="text" class="search-box" id="searchInput" placeholder="Search movies from your list..." onkeyup="filterMovies()">
+    <input type="text" class="search-box" id="searchInput" placeholder="😀ଓଡ଼ିଆ movies search" onkeyup="filterMovies()">
 </header>
 
 <div class="container" id="movieGrid">
@@ -142,8 +142,8 @@
                     <h1>${movie.MOVIE_NAME}</h1>
                     <p>${overview}</p>
                     <div class="cast"><strong>Cast:</strong> ${cast}</div>
-                    <button class="play-btn" onclick="handlePlay('${movie.MOVIE_LINK}')">PLAY NOW</button>
-                    ${trailer ? `<br><small><a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" style="color:#e50914;">Watch Trailer on YouTube</a></small>` : ''}
+                    <button class="play-btn" onclick="handlePlay('${movie.MOVIE_LINK}')">😀ଦେଖନ୍ତୁ</button>
+                    ${trailer ? `<br><small><a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" style="color:#e50914;">😀👆ଏହି ଓଡ଼ିଆ movieର Trailer ଦେଖନ୍ତୁ</a></small>` : ''}
                 </div>
             </div>
         `;

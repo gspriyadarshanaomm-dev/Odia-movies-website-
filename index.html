@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Odia Movies App</title>
+    <title>Odia movies app</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e50914; --bg: #0f0f0f; --card-bg: #1a1a1a; --text: #ffffff; }
@@ -68,7 +68,7 @@
     // --- MOVIE LIST SECTION ---
     // Aapko sirf niche diye gaye format mein movies add karni hain.
     const moviesList = [
-        { MOVIE_NAME: "daman", MOVIE_LINK: "https://example.com/video.mp4" },
+        { MOVIE_NAME: "Jawan", MOVIE_LINK: "https://example.com/video.mp4" },
         { MOVIE_NAME: "Animal", MOVIE_LINK: "https://example.com/animal" },
         { MOVIE_NAME: "Fighter", MOVIE_LINK: "https://vidsrc.to/embed/movie/tt123456" },
         // Niche Nayi Movie Paste Karein (Dhyaan rahe ki akhri wali movie ke baad comma ',' na ho)
@@ -143,7 +143,7 @@
                     <p>${overview}</p>
                     <div class="cast"><strong>Cast:</strong> ${cast}</div>
                     <button class="play-btn" onclick="handlePlay('${movie.MOVIE_LINK}')">😀ଦେଖନ୍ତୁ</button>
-                    ${trailer ? `<br><small><a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" style="color:#e50914;">😀👆ଏହି ଓଡ଼ିଆ movieର Trailer ଦେଖନ୍ତୁ</a></small>` : ''}
+                    ${trailer ? `<br><small><a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" style="color:#e50914;">😀👆ଏହି ଓଡ଼ିଆ movieର trailer ଦେଖନ୍ତୁ</a></small>` : ''}
                 </div>
             </div>
         `;

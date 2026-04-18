@@ -52,7 +52,7 @@
 
 <script>
     // 1. TMDB API KEY (YAHAN APNI KEY DALEIN)
-    const API_KEY = "10a4fc6dd1d668b929f4cccccfc48d45"; // Example Key
+    const API_KEY = "10a4fc6dd1d668b929f4cccccfc48d45";
     const TMDB_SEARCH_URL = "https://api.themoviedb.org/3/search/movie";
     const TMDB_IMG_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -65,18 +65,18 @@
         // Nayi movie yahan add karein: { name: "NAME", link: "URL" },
     ];
 
-    //Initialize Firebase (Optional configuration)
+    Initialize Firebase (Optional configuration)
     const firebaseConfig = {
         apiKey: "AIzaSyA4bKi5KB1Af_qFSlbvseue7WsW5ljyLrE",
         databaseURL: "https://odia-movies-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "odia-movies",
     };
-    //firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
 
     const movieGrid = document.getElementById('movieGrid');
     const searchInput = document.getElementById('searchInput');
 
-    // Function to load all movies
+    //Function to load all movies
     async function loadMovies(filter = "") {
         movieGrid.innerHTML = "";
         const filteredMovies = moviesData.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));

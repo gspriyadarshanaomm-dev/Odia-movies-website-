@@ -57,7 +57,47 @@
 </div>
 
 <script>
-    /* 
+
+    <!-- Firebase SDK ko load karein (Modular Version) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // --- AAPKA CONFIG CODE YAHAN AYEGA ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyA4bKi5KB1Af_qFSlbvseue7WsW5ljyLrE",
+    authDomain: "odia-movies.firebaseapp.com",
+    databaseURL: "https://odia-movies-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "odia-movies",
+    storageBucket: "odia-movies.firebasestorage.app",
+    messagingSenderId: "606054448112",
+    appId: "1:606054448112:web:b33157f595b816638f7b35",
+    measurementId: "G-YDRSTY68S7"
+  };
+
+  // Firebase ko start (Initialize) karein
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // --- DATA READ KARNE KA CODE (Movies dikhane ke liye) ---
+  const movieGrid = document.getElementById('movieGrid'); // Aapke code wala ID
+
+  onValue(ref(db, 'movies/'), (snapshot) => {
+    const data = snapshot.val();
+    movieGrid.innerHTML = ""; // Pehle purana clear karein
+    
+    for (let id in data) {
+      const movie = data[id];
+      // Yahan wahi HTML design banayein jo aapki movie app mein hai
+      movieGrid.innerHTML += `
+        <div class="movie-card">
+          <img src="${movie.poster_path}" alt="${movie.title}">
+          <h3>${movie.title}</h3>
+        </div>
+      `;
+    }
+  });
+/* 
        --- TMDB SETUP ---
        1. Visit https://www.themoviedb.org/
        2. Account banayein aur API Key lein.

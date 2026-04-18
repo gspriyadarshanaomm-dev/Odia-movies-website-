@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odia Movies - Watch Online</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <style>
+        :root { --main-color: #ffcc00; --bg-color: #0f0f0f; }
+        body { background: var(--bg-color); color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        header { background: #1a1a1a; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--main-color); }
+        .search-box { width: 80%; padding: 10px; border-radius: 5px; border: none; outline: none; font-size: 16px; }
+        
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
+        .movie-card { background: #1a1a1a; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; position: relative; }
+        .movie-card:hover { transform: scale(1.05); border: 1px solid var(--main-color); }
+        .movie-card img { width: 100%; height: 220px; object-fit: cover; }
+        .movie-info { padding: 10px; text-align: center; }
+        .movie-info h3 { font-size: 14px; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* Modal Layout */
+        #detailsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto; }
+        .modal-content { max-width: 800px; margin: 20px auto; padding: 20px; position: relative; }
+        .close-btn { position: absolute; right: 20px; top: 20px; font-size: 30px; cursor: pointer; color: var(--main-color); }
+        .details-flex { display: flex; flex-wrap: wrap; gap: 20px; }
+        .details-flex img { width: 250px; border-radius: 10px; }
+        .movie-desc { flex: 1; min-width: 300px; }
+        .watch-btn { display: inline-block; background: var(--main-color); color: black; padding: 12px 30px; text-decoration: none; font-weight: bold; border-radius: 5px; margin-top: 20px; cursor: pointer; border:none;}
+        iframe { width: 100%; height: 400px; margin-top: 20px; border-radius: 10px; border: none; }
+        .cast-list { margin-top: 15px; color: #ccc; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2 style="color:var(--main-color); margin-bottom: 10px;">PR MOVIES ODIA</h2>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search movies globally...">
+</header>
+
+<div class="movie-grid" id="movieGrid"></div>
+
+<!-- Modal for Movie Details -->
+<div id="detailsModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    // 1. TMDB API KEY (YAHAN APNI KEY DALEIN)
+    const API_KEY = "10a4fc6dd1d668b929f4cccccfc48d45"; // Example Key
+    const TMDB_SEARCH_URL = "https://api.themoviedb.org/3/search/movie";
+    const TMDB_IMG_URL = "https://image.tmdb.org/t/p/w500";
+
+    // 2. MOVIE DATA (Bas yahan movie ka naam aur link paste karein)
+    const moviesData = [
+        { name: "Jawan", link: "https://files.catbox.moe/example.mp4" },
+        { name: "Daman", link: "https://prmovies.baby/movie/daman-2022/" },
+        { name: "Pushpa 2", link: "https://files.catbox.moe/example2.mp4" },
+
+        // Nayi movie yahan add karein: { name: "NAME", link: "URL" },
+    ];
+
+    //Initialize Firebase (Optional configuration)
+    const firebaseConfig = {
+        apiKey: "AIzaSyA4bKi5KB1Af_qFSlbvseue7WsW5ljyLrE",
+        databaseURL: "https://odia-movies-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "odia-movies",
+    };
+    //firebase.initializeApp(firebaseConfig);
+
+    const movieGrid = document.getElementById('movieGrid');
+    const searchInput = document.getElementById('searchInput');
+
+    // Function to load all movies
+    async function loadMovies(filter = "") {
+        movieGrid.innerHTML = "";
+        const filteredMovies = moviesData.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+
+        for (let movie of filteredMovies) {
+            try {
+                const res = await fetch(`${TMDB_SEARCH_URL}?api_key=${API_KEY}&query=${encodeURIComponent(movie.name)}`);
+                const data = await res.json();
+                const info = data.results[0] || { poster_path: null, title: movie.name, overview: "Details not available." };
+                
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.onclick = () => showDetails(info.id, movie.link, movie.name);
+                
+                const poster = info.poster_path ? TMDB_IMG_URL + info.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster';
+                
+                card.innerHTML = `
+                    <img src="${poster}" alt="${movie.name}">
+                    <div class="movie-info">
+                        <h3>${movie.name}</h3>
+                    </div>
+                `;
+                movieGrid.appendChild(card);
+            } catch (err) { console.log("Error fetching TMDB data"); }
+        }
+    }
+
+    // Function to show movie details, cast, trailer
+    async function showDetails(tmdbId, movieLink, originalName) {
+        document.getElementById('detailsModal').style.display = 'block';
+        const body = document.getElementById('modalBody');
+        body.innerHTML = "Loading...";
+
+        try {
+            // Fetch Details, Cast and Trailer in parallel
+            const [detRes, castRes, vidRes] = await Promise.all([
+                fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY}`),
+                fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${API_KEY}`),
+                fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${API_KEY}`)
+            ]);
+
+            const details = await detRes.json();
+            const castData = await castRes.json();
+            const videoData = await vidRes.json();
+
+            const cast = castData.cast.slice(0, 5).map(c => c.name).join(", ");
+            const trailer = videoData.results.find(v => v.type === "Trailer");
+            
+            // Direct Link Check (Check if URL ends with video extension)
+            const isDirectLink = /\.(mp4|webm|ogg|mkv)$/i.test(movieLink);
+
+            body.innerHTML = `
+                <div class="details-flex">
+                    <img src="${TMDB_IMG_URL + details.poster_path}" alt="">
+                    <div class="movie-desc">
+                        <h1>${details.title}</h1>
+                        <p>${details.overview}</p>
+                        <div class="cast-list"><strong>Cast:</strong> ${cast}</div>
+                        <p><strong>Rating:</strong> ⭐ ${details.vote_average}</p>
+                        
+                        ${isDirectLink ? 
+                            `<video controls style="width:100%; border-radius:10px; margin-top:10px;"><source src="${movieLink}" type="video/mp4">Your browser doesn't support video.</video>` :
+                            `<button class="watch-btn" onclick="window.open('${movieLink}', '_blank')">WATCH / DOWNLOAD NOW</button>`
+                        }
+                    </div>
+                </div>
+                ${trailer ? `<h3>Watch Trailer</h3><iframe src="https://www.youtube.com/embed/${trailer.key}" allowfullscreen></iframe>` : ''}
+            `;
+        } catch (err) {
+            body.innerHTML = `<h1>${originalName}</h1><button class="watch-btn" onclick="window.open('${movieLink}', '_blank')">CLICK HERE TO WATCH</button>`;
+        }
+    }
+
+    function closeModal() { document.getElementById('detailsModal').style.display = 'none'; }
+
+    // Search Logic
+    searchInput.addEventListener('input', (e) => loadMovies(e.target.value));
+
+    // Initial Load
+    loadMovies();
+</script>
+
+</body>
+</html>
